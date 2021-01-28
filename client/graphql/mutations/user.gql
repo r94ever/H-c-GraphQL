@@ -1,0 +1,94 @@
+mutation userLogin($email: String!, $password: String!) {
+  userLogin(email: $email, password: $password) {
+    access_token
+  }
+}
+
+mutation userLogout ($id: String!) {
+  userLogout (id: $id) {
+    id
+  }
+}
+
+mutation createUser($name: String!, $email: String!, $password: String!) {
+  createUser(name: $name, email: $email, password: $password) {
+    access_token
+  }
+}
+
+mutation updateUser($id: ID!, $name: String!, $email: String!, $avatar: Upload) {
+  updateUser(id: $id, name: $name, email: $email, avatar: $avatar) {
+    id
+  }
+}
+
+mutation createPost(
+  $title: String!,
+  $content: String!,
+  $user_id: ID!,
+  $status: PostStatus!,
+  $categories: [ID!]
+) {
+  createPost(
+    title: $title, 
+    content: $content, 
+    user_id: $user_id, 
+    status: $status, 
+    categories: { sync: $categories }
+  ) {
+    id
+  }
+}
+
+mutation updatePost(
+  $id: ID!,
+  $title: String!,
+  $content: String!,
+  $user_id: ID!,
+  $status: PostStatus!,
+  $categories: [ID!]
+) {
+  updatePost(
+    id: $id,
+    title: $title,
+    content: $content,
+    user_id: $user_id,
+    status: $status,
+    categories: { sync: $categories }
+  ) {
+    id
+  }
+}
+
+mutation deletePost($id: ID!) {
+  deletePost (id: $id) {
+    id
+  }
+}
+
+mutation createCategory($name: String!) {
+  createCategory(name: $name) {
+    id
+  }
+}
+
+mutation updateCategory($id: ID!, $name: String!) {
+  updateCategory(id: $id, name: $name) {
+    id
+  }
+}
+
+mutation deleteCategory($id: ID!) {
+  deleteCategory (id: $id) {
+    id
+  }
+}
+
+mutation sendMessage($receiverId: Int!, $message: String!) {
+  sendMessage (receiver_id: $receiverId, message: $message) {
+    id
+    message
+    status
+    created_at
+  }
+}

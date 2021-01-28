@@ -1,0 +1,122 @@
+"A date string with format `Y-m-d`, e.g. `2011-05-23`."
+scalar Date @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Date")
+
+"A datetime string with format `Y-m-d H:i:s`, e.g. `2018-05-23 13:43:32`."
+scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTime")
+
+"Can be used as an argument to upload files using https://github.com/jaydenseric/graphql-multipart-request-spec"
+scalar Upload @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Upload")
+
+input Ids {
+    sync: [ID!]
+    connect: [ID!]
+    delete: [ID!]
+    syncWithoutDetaching: [ID!]
+}
+
+type User {
+    id: ID!
+    name: String!
+    email: String!
+    avatar: String
+    access_token: String
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+type Post {
+    id: ID!
+    title: String!
+    content: String!
+    slug: String
+    status: PostStatus
+    author: User @belongsTo
+    categories: [Category!]! @belongsToMany
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+type Category {
+    id: ID!
+    name: String!
+    slug: String
+    posts: [Post!]! @belongsToMany
+    created_at: DateTime!
+    updated_at: DateTime!
+    total_posts: Int! @count(relation: "posts")
+}
+
+type Chat {
+    id: ID
+    receiver: User @belongsTo
+    sender: User @belongsTo
+    receiver_id: Int
+    sender_id: Int
+    message: String
+    status: String
+    created_at: DateTime
+    updated_at: DateTime
+}
+
+type Query {
+    me: User @auth
+
+    users: [User!]! @all
+
+    user(id: ID @eq): User @find
+
+    post(id: ID @eq): Post @find
+
+    posts(
+        where: _ @whereConditions(columns: ["title", "content", "status"])
+        hasCategories: _ @whereHasConditions(columns: ["id"])
+    ): [Post!]! @paginate
+
+    category(id: ID @eq): Category @find
+
+    categories(where: _ @whereConditions(columns: ["name"])): [Category!]! @all
+}
+
+extend type Query @guard {
+    chats(receiver_id: Int! @where, sender_id: Int! @where): [Chat!]!
+        @field(resolver: "App\\GraphQL\\Queries\\GetChats")
+}
+
+type Mutation {
+    userLogin(email: String!, password: String!): User
+        @field(resolver: "App\\GraphQL\\Mutations\\Login")
+
+    createUser(email: String!, name: String!, password: String! @hash): User! @create
+}
+
+extend type Mutation @guard {
+    updateUser(id: ID!, name: String!, email: String!, avatar: Upload): User
+        @field(resolver: "App\\GraphQL\\Mutations\\UpdateUser")
+
+    createPost(title: String!, content: String!, user_id: ID!, status: PostStatus!, categories: Ids): Post @create
+
+    updatePost(id: ID!, title: String!, content: String!, user_id: ID!, status: PostStatus!, categories: Ids): Post
+        @update
+        @event (dispatch: "App\\Events\\PostUpdated")
+
+    deletePost(id: ID!): Post @delete @whereAuth(relation: "author")
+
+    createCategory(name: String!): Category @create
+
+    updateCategory(id: ID!, name: String!): Category @update
+
+    deleteCategory(id: ID!): Category @delete
+
+    sendMessage(receiver_id: Int!, message: String): Chat
+        @field(resolver: "App\\GraphQL\\Mutations\\SendMessage")
+        @broadcast(subscription: "messageSent")
+}
+
+enum PostStatus {
+    PUBLISHED @enum(value: "1")
+    DRAFT @enum(value: "0")
+}
+
+type Subscription {
+    messageSent(id: ID): Chat
+}

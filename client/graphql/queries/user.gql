@@ -1,0 +1,100 @@
+query me {
+  me {
+    id
+    name
+    email
+    avatar
+  }
+}
+
+query getUsers {
+  users {
+    id
+    name
+    avatar
+    created_at
+    updated_at
+  }
+}
+
+query getChats ($receiverId: Int!, $senderId: Int!) {
+  chats (receiver_id: $receiverId, sender_id: $senderId) {
+    id
+    sender_id
+    receiver_id
+    message
+    status
+    created_at
+  }
+}
+
+query getPost ($id: ID!) {
+  post (id: $id) {
+    id
+    title
+    content
+    status
+    author {
+      id
+      name
+    }
+    categories {
+      id
+    }
+    created_at
+    updated_at
+  }
+}
+
+query getPosts (
+  $first: Int!,
+  $page: Int,
+  $where: QueryPostsWhereWhereConditions
+  $hasCategories: QueryPostsHasCategoriesWhereHasConditions
+) {
+  posts (
+    first: $first,
+    page: $page,
+    where: $where,
+    hasCategories: $hasCategories
+  ) {
+    data {
+      id
+      title
+      content
+      status
+      categories {
+        id
+        name
+      }
+      created_at
+      updated_at
+      author {
+        id
+        name
+      }
+    }
+    paginatorInfo {
+      currentPage
+      lastPage
+    }
+  }
+}
+
+query getCategory($id: ID!) {
+  category(id: $id) {
+    id
+    name
+    slug
+    created_at
+    updated_at
+  }
+}
+
+query getCategories ($where: QueryCategoriesWhereWhereConditions) {
+  categories (where: $where) {
+    id
+    name
+    total_posts
+  }
+}
