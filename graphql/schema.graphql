@@ -7,6 +7,8 @@ scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Date
 "Can be used as an argument to upload files using https://github.com/jaydenseric/graphql-multipart-request-spec"
 scalar Upload @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Upload")
 
+scalar DateRange @scalar(class: "App\\GraphQL\\Types\\DateRange")
+
 input Ids {
     sync: [ID!]
     connect: [ID!]
@@ -32,6 +34,7 @@ type Post {
     status: PostStatus
     author: User @belongsTo
     categories: [Category!]! @belongsToMany
+    views: Int! @count(relation: "views")
     created_at: DateTime!
     updated_at: DateTime!
 }
@@ -58,6 +61,12 @@ type Chat {
     updated_at: DateTime
 }
 
+type View {
+    total_views: Int!
+    date: Date
+    viewed_at: DateTime
+}
+
 type Query {
     me: User @auth
 
@@ -75,6 +84,8 @@ type Query {
     category(id: ID @eq): Category @find
 
     categories(where: _ @whereConditions(columns: ["name"])): [Category!]! @all
+
+    reports(viewed_at: DateRange!): [View!]! @report
 }
 
 extend type Query @guard {

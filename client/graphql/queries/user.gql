@@ -67,6 +67,7 @@ query getPosts (
         id
         name
       }
+      views
       created_at
       updated_at
       author {
@@ -96,5 +97,12 @@ query getCategories ($where: QueryCategoriesWhereWhereConditions) {
     id
     name
     total_posts
+  }
+}
+
+query getReports ($viewed_at: DateRange!) {
+  reports (viewed_at: $viewed_at) {
+    date
+    total_views
   }
 }

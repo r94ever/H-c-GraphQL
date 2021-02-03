@@ -32,6 +32,7 @@
           <th scope="col">Title</th>
           <th scope="col">Categories</th>
           <th scope="col">Author</th>
+          <th scope="col">Views</th>
           <th scope="col">Status</th>
           <th scope="col"></th>
         </tr>
@@ -45,6 +46,7 @@
           <td>{{ post.title }}</td>
           <td>{{ post.categories.map(cat => cat.name).join(', ') }}</td>
           <td>{{ post.author.name }}</td>
+          <td>{{ post.views }}</td>
           <td>
             <span v-if="post.status === 'PUBLISHED'" class="badge badge-success">Published</span>
             <span v-else class="badge badge-secondary">Draft</span>
